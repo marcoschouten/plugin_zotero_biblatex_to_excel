@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Output files
+output.txt
+
+# Virtual environment
+venv/
+env/
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+
+# macOS specific files
+.DS_Store
+
+# PyInstaller specific files
+dist/
+build/
+*.spec
