@@ -19,16 +19,24 @@ To create a standalone executable, use the following command:
 pyinstaller --onefile --windowed main.py
 ```
 ## Usage
+
 1. Export your BibTeX files using BetterBibLaTeX.
+
+    <img src="./images/img0.png" alt="Drag and Drop" height="250">
+
 2. Drag and drop your exported BibTeX files into the application window.
-    ![Drag and Drop](./images/img1.png)
+
+    <img src="./images/img1.png" alt="Drag and Drop" height="250">
+
 3. The application will process the files and generate an output Excel file in your Downloads folder.
-    ![Processing Files](./images/img2.png)
+
+    <img src="./images/img2.png" alt="Processing Files" height="250">
+
 4. Open the generated Excel file to view the processed data.
-    ![Generated Excel File](./images/img3.png)
+
+    <img src="./images/img3.png" alt="Generated Excel File" height="250">
+
 ---
-
-
 
 ## credits
 @marcoschouten
