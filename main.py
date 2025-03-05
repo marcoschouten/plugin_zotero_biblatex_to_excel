@@ -7,24 +7,13 @@ from PyQt5.QtGui import QClipboard
 import openpyxl
 from openpyxl.styles import PatternFill, Border, Side, Alignment
 
-# If a file output.txt exists, delete all its content
-if os.path.exists("output.txt"):
-    with open("output.txt", "w", encoding="utf-8") as output_file:
-        pass
-
 # Get all .bib files in the current folder
 bib_files = [f for f in os.listdir(".") if f.endswith(".bib")]
 
 
 # Function to process .bib files
 def process_bib_files(bib_files):
-    """
-    Process each .bib file in the list by replacing '@online' with '@misc',
-    sorting entries by the 'date' field, and writing the results to 'output.txt'.
-
-    Parameters:
-    bib_files (list): List of .bib file names to process.
-    """
+    processed_content = ""
     for bib_file_name in bib_files:
         with open(bib_file_name, "r", encoding="utf-8") as bib_file:
             content = bib_file.read()
@@ -33,25 +22,20 @@ def process_bib_files(bib_files):
             bib_file.write(content)
 
     for bib_file_name in bib_files:
-        # Load the .bib file
         with open(bib_file_name, "r", encoding="utf-8") as bib_file:
             bib_database = bibtexparser.load(bib_file)
 
-        # Sort entries by year extracted from the date field
         sorted_entries = sorted(bib_database.entries, key=lambda x: x.get("date", "9999-12-31"))
         bib_database.entries = sorted_entries
-        # Extract just the filename from the full path
         filename_only = os.path.basename(bib_file_name)
-        with open("output.txt", "a", encoding="utf-8") as output_file:
-            output_file.write(f"{filename_only[:-4].upper()}\n")  # Add filename in caps without .bib
-            for entry in bib_database.entries:
-                entry_id = entry.get("ID", "No ID")
-                entry_url = entry.get("url", "No URL")
-                output_file.write(f"{entry_id} | {entry_url}\n")
-            output_file.write("\n")  # Add a newline between each bib_file
+        processed_content += f"{filename_only[:-4].upper()}\n"
+        for entry in bib_database.entries:
+            entry_id = entry.get("ID", "No ID")
+            entry_url = entry.get("url", "No URL")
+            processed_content += f"{entry_id} | {entry_url}\n"
+        processed_content += "\n"
 
-    # Copy the content of the output.txt to the clipboard and return the content string
-    return open("output.txt", "r", encoding="utf-8").read()
+    return processed_content
 
 
 class DragDropWidget(QFrame):
@@ -103,23 +87,18 @@ class DragDropWidget(QFrame):
 
     def dropEvent(self, event):
         files = [url.toLocalFile() for url in event.mimeData().urls() if url.toLocalFile().endswith(".bib")]
-        process_bib_files(files)
+        processed_content = process_bib_files(files)
         self.label.setText("Files processed!")
 
-        # Read the output.txt and display it in the QTextEdit
-        with open("output.txt", "r", encoding="utf-8") as output_file:
-            self.text_edit.setPlainText(output_file.read())
+        # Display the processed content in the QTextEdit
+        self.text_edit.setPlainText(processed_content)
 
     def copy_to_clipboard(self):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.text_edit.toPlainText())
 
     def save_to_excel(self):
-        """
-        Read the content from output.txt and generate an Excel file.
-        """
-        with open("output.txt", "r", encoding="utf-8") as output_file:
-            content = output_file.read()
+        content = self.text_edit.toPlainText()
         generate_excel(content)
 
 
@@ -213,11 +192,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = DragDropWidget()
     widget.show()
-
-    # Process the BibTeX files to update output.txt
-    content = process_bib_files(bib_files)
-
-    # Call the function to generate the Excel file
-    generate_excel(content)
-
     sys.exit(app.exec_())
